@@ -1,0 +1,47 @@
+{
+  "name": "todo-ts",
+  "version": "0.0.1",
+  "description": "Simple ToDo List API",
+  "license": "ISC",
+  "author": "Marlo Rodrigues",
+  "type": "commonjs",
+  "main": "build/server.js",
+  "scripts": {
+    "build": "npx tsc --removeComments true --pretty false #--listEmittedFiles true",
+    "dev": "nodemon --watch 'src/**' --ext 'ts,json' --exec 'ts-node src/server.ts'",
+    "prisma:pull": "npx prisma db pull --schema ./prisma/schema.prisma ; npm run generate",
+    "prisma:migrate": "npx prisma migrate dev --schema ./prisma/schema.prisma",
+    "prisma:generate": "npx prisma generate --schema ./prisma/schema.prisma",
+    "prisma:studio": "npx prisma studio --schema ./prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.14.0",
+    "axios": "^1.11.0",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "redis": "^5.8.2",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/i18next": "^13.0.0",
+    "@types/i18next-express-middleware": "^1.7.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

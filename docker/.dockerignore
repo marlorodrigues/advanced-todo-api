@@ -1,0 +1,12 @@
+node_modules
+.git
+.vscode
+logs
+tmp
+docs
+config/.env
+.env
+README.md
+swagger.yaml
+build
+addons
