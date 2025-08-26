@@ -20,20 +20,26 @@ model Users {
   email     String    @db.VarChar(128) @unique
   password  String    @db.VarChar(256)
 
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
   Tasks    Tasks[]
 }
 
 model Tasks {
-  TaskId        BigInt    @id @default(autoincrement())
+  taskId        BigInt    @id @default(autoincrement())
   userId        BigInt
   
   title         String    @db.VarChar(256)
   description   String?   @db.Text
-  completed     Boolean   @default(false)
+  isCompleted   Boolean   @default(false)
 
   scheduledAt   DateTime?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
   Users         Users     @relation(fields: [userId], references: [userId], onUpdate: NoAction, onDelete: NoAction)
 }
