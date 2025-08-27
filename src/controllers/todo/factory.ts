@@ -31,28 +31,7 @@ async function isUserValid(userId: bigint): Promise<boolean> {
     }
 }
 
-async function getAllTasks(userId: bigint): Promise<Tasks | string> {
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
-
-        let allTasks = await DB.tasks.findMany({
-            where: { userId: userId }
-        })
-
-        return allTasks.length > 0 ? allTasks as Tasks : TASKS_NOT_FOUND
-
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
-
-        return GENERIC_THROW
-    }
-}
-
-async function getTaskById(userId: bigint, taskId: bigint): Promise<Task | string>{
+async function getTaskById(userId: bigint, taskId: bigint): Promise<Task | string> {
     try{
         if(!isUserValid(userId))
             return USER_NOT_FOUND
@@ -73,213 +52,231 @@ async function getTaskById(userId: bigint, taskId: bigint): Promise<Task | strin
     }
 }
 
-async function getTasksByTitle(userId: bigint, textToSearch: string): Promise<Tasks | string>{
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+export = {
 
-        let tasks = await DB.tasks.findMany({
-            where: { 
-                userId: userId,
-                title: {
-                    contains: textToSearch,
-                    mode: 'insensitive',
-                } 
-            }
-        })
+    getTaskById: getTaskById,
 
-        return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+    getAllTasks: async (userId: bigint): Promise<Tasks | string> => {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+            let allTasks = await DB.tasks.findMany({
+                where: { userId: userId }
+            })
 
-        return GENERIC_THROW
-    }
-}
+            return allTasks.length > 0 ? allTasks as Tasks : TASKS_NOT_FOUND
 
-async function getTasksByStatus(userId: bigint, isCompleted: boolean): Promise<Tasks | string>{
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
 
-        let tasks = await DB.tasks.findMany({
-            where: { 
-                userId: userId,
-                isCompleted: isCompleted
-            }
-        })
+            return GENERIC_THROW
+        }
+    },
 
-        return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+    getTasksByTitle: async (userId: bigint, textToSearch: string): Promise<Tasks | string>=> {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+            let tasks = await DB.tasks.findMany({
+                where: { 
+                    userId: userId,
+                    title: {
+                        contains: textToSearch,
+                        mode: 'insensitive',
+                    } 
+                }
+            })
 
-        return GENERIC_THROW
-    }
-}
+            return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
 
-async function getTasksByPeriod(userId: bigint, startAt: string, endAt: string, timezone: string): Promise<Tasks | string>{
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
 
-        const start_at = (DateTime.fromSQL(startAt, { zone: timezone })).toUTC().toISO()
-        const end_at = (DateTime.fromSQL(endAt, { zone: timezone })).toUTC().toISO()
+            return GENERIC_THROW
+        }
+    },
 
-        if(!start_at || !end_at)
-            return INVALID_PERIOD
+    getTasksByStatus: async (userId: bigint, isCompleted: boolean): Promise<Tasks | string>=> {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-        let tasks = await DB.tasks.findMany({
-            where: { 
-                AND: [
-                    { userId: userId },
-                    { scheduledAt: { gte: start_at } },
-                    { scheduledAt: { lte: end_at } },
-                ]
-            }
-        })
+            let tasks = await DB.tasks.findMany({
+                where: { 
+                    userId: userId,
+                    isCompleted: isCompleted
+                }
+            })
 
-        return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
 
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
 
-        return GENERIC_THROW
-    }
-}
+            return GENERIC_THROW
+        }
+    },
 
-async function createTask(userId: bigint, task: Task){
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+    getTasksByPeriod: async (userId: bigint, startAt: string, endAt: string, timezone: string): Promise<Tasks | string>=> {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-        return await DB.tasks.create({
-            data: {
-                title: task.title,
-                description: task.description,
-                isCompleted: task.isCompleted,
-                scheduledAt: task.scheduledAt,
-                userId: userId
-            },
-            select: {
-                taskId: true
-            }
-        })
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+            const start_at = (DateTime.fromSQL(startAt, { zone: timezone })).toUTC().toISO()
+            const end_at = (DateTime.fromSQL(endAt, { zone: timezone })).toUTC().toISO()
 
-        return GENERIC_THROW
-    }
-}
+            if(!start_at || !end_at)
+                return INVALID_PERIOD
 
-async function updateTask(userId: bigint, task: Task){
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+            let tasks = await DB.tasks.findMany({
+                where: { 
+                    AND: [
+                        { userId: userId },
+                        { scheduledAt: { gte: start_at } },
+                        { scheduledAt: { lte: end_at } },
+                    ]
+                }
+            })
 
-        let existTask = await getTaskById(userId, task.taskId)
-        if(typeof existTask == "string")
-            return existTask
+            return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
 
-        existTask.title = task?.title || existTask.title
-        existTask.description = task?.description || existTask.description
-        existTask.isCompleted = task?.isCompleted || existTask.isCompleted
-        existTask.scheduledAt = task?.scheduledAt || existTask.scheduledAt
-        existTask.updatedAt = new Date()
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
 
-        return await DB.tasks.update({
-            where: { taskId: existTask.taskId, userId: userId },
-            data: task,
-            select: {
-                taskId: true
-            }
-        })
+            return GENERIC_THROW
+        }
+    },
 
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+    createTask: async (userId: bigint, task: Task)=> {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-        return GENERIC_THROW
-    }
-}
+            return await DB.tasks.create({
+                data: {
+                    title: task.title,
+                    description: task.description,
+                    isCompleted: task.isCompleted,
+                    scheduledAt: task.scheduledAt,
+                    userId: userId
+                },
+                select: {
+                    taskId: true
+                }
+            })
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
 
-async function setTaskComplete(userId: bigint, taskId: bigint, status: boolean){
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+            return GENERIC_THROW
+        }
+    },
 
-        let task = await getTaskById(userId, taskId)
-        if(typeof task == "string")
-            return task
+    updateTask: async (userId: bigint, task: Task)=> {
+        try{
 
-        task.isCompleted = status
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-        return await DB.tasks.update({
-            where: { taskId: taskId, userId: userId },
-            data: task,
-            select: {
-                taskId: true
-            }
-        })
+            let existTask = await getTaskById(userId, task.taskId)
+            if(typeof existTask == "string")
+                return existTask
 
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+            existTask.title = task?.title || existTask.title
+            existTask.description = task?.description || existTask.description
+            existTask.isCompleted = task?.isCompleted || existTask.isCompleted
+            existTask.scheduledAt = task?.scheduledAt || existTask.scheduledAt
+            existTask.updatedAt = new Date()
 
-        return GENERIC_THROW
-    }
-}
+            return await DB.tasks.update({
+                where: { taskId: existTask.taskId, userId: userId },
+                data: task,
+                select: {
+                    taskId: true
+                }
+            })
 
-async function deleteTask(userId: bigint, taskId: bigint){
-    try{
-        if(!isUserValid(userId))
-            return USER_NOT_FOUND
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
 
-        let task = await getTaskById(userId, taskId)
-        if(typeof task == "string")
-            return task
+            return GENERIC_THROW
+        }
+    },
 
-        return await DB.tasks.delete({
-            where: {
-                taskId: taskId,
-                userId: userId
-            },
-            select: {
-                taskId: true
-            }
-        })
+    setTaskComplete: async (userId: bigint, taskId: bigint, status: boolean) => {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
 
-    } catch (error: any) {
-        console.log("-----------------------------")
-        console.log(error.message)
-        console.log(error.stack)
-        console.log("-----------------------------")
+            let task = await getTaskById(userId, taskId)
+            if(typeof task == "string")
+                return task
 
-        return GENERIC_THROW
-    }
-}
+            task.isCompleted = status
 
+            return await DB.tasks.update({
+                where: { taskId: taskId, userId: userId },
+                data: task,
+                select: {
+                    taskId: true
+                }
+            })
 
-export default {
-    getAllTasks,
-    getTaskById,
-    createTask,
-    updateTask,
-    deleteTask
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
+
+            return GENERIC_THROW
+        }
+    },
+
+    deleteTask: async (userId: bigint, taskId: bigint) => {
+        try{
+            if(!isUserValid(userId))
+                return USER_NOT_FOUND
+
+            let task = await getTaskById(userId, taskId)
+            if(typeof task == "string")
+                return task
+
+            return await DB.tasks.delete({
+                where: {
+                    taskId: taskId,
+                    userId: userId
+                },
+                select: {
+                    taskId: true
+                }
+            })
+
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
+
+            return GENERIC_THROW
+        }
+    },
 }

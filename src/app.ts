@@ -5,7 +5,8 @@ import Compression from 'compression'
 import Cors from 'cors'
 import Helmet from "helmet"
 import cookieParser from 'cookie-parser';
-
+import { encryptData } from './utils/encryption';
+import crypto from 'crypto'
 
 export default class APIServer {
     public app: Express
@@ -17,6 +18,9 @@ export default class APIServer {
 
     constructor() {
         this.app = express()
+
+        let t = encryptData("teste", crypto.randomBytes(32))
+        console.log("encryptData", t.data.replace(/\./g, "O"))
     }
 
     public async startAPI(){
