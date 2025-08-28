@@ -1,8 +1,15 @@
-module.exports = {
+import Controllers from './controllers'
+
+
+export default {
     base: '/users',
     routes: {
-        PUBLIC: [],
-        ONLY_VALID_TOKEN: [],
+        PUBLIC: [
+            { url: '', method: 'post', handler: Controllers.CreateUser}
+        ],
+        ONLY_VALID_TOKEN: [
+            { url: '', method: 'get', handler: Controllers.FindAllUser }
+        ],
         ADMIN_ONY: [],
         COMMON: [],
     }

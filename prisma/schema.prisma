@@ -7,6 +7,8 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres", "views"]
+  engineType      = "binary"
 }
 
 datasource db {
@@ -18,7 +20,7 @@ model Users {
   userId    BigInt    @id @default(autoincrement())
   name      String    @db.VarChar(128)
   username     String    @db.VarChar(128) @unique
-  password  String    @db.VarChar(256)
+  password  String    @db.VarChar(512)
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

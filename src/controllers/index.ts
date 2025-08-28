@@ -26,10 +26,11 @@ export default function initializeControllers(): Routes2Expose[] {
                 if (!isRouteFile) return;
 
                 let handlers: any = require(`${__dirname}/${controller}/${file}`)
-                allRoutes.push(handlers)
+                allRoutes.push(handlers.default)
             })
         })
 
+        console.log(allRoutes)
         return allRoutes
     }
     catch(error: any){

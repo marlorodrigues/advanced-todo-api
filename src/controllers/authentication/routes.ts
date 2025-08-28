@@ -1,7 +1,7 @@
 import Controllers from './controllers'
 
 
-module.exports = {
+export default {
     base: '/authentication',
     routes: {
         PUBLIC: [

@@ -6,7 +6,7 @@ interface ZodData {
     data?: any
 }
 
-export = {
+export default {
     LoginForm: (data: any): ZodData => {
         let schema = z.object({
             username: z.string().min(6).max(128),

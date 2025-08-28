@@ -29,9 +29,9 @@ async function isUserValid(userId: bigint): Promise<boolean> {
     }
 }
 
-export = {
+export default {
 
-    findUserData: async (username: string, password: string) => {
+    findUserData: async (username: string, givenPassword: string) => {
         try{
             let user = await DB.users.findFirst({
                 where: { username: username }
@@ -40,10 +40,16 @@ export = {
             if(!user)
                 return USER_NOT_FOUND
 
-            if (!verifyPassword(password, user.password))
+            if (!verifyPassword(givenPassword, user.password))
                 return AUTHENTICATION_FAILED
             
-            return user
+            let {userId, password, ...rest} = user
+            password = ""
+
+            return {
+                userId: userId.toString(),
+                ...rest
+            }
 
         } catch (error: any) {
             console.log("-----------------------------")

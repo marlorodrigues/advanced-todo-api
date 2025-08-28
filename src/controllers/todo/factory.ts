@@ -33,7 +33,7 @@ async function isUserValid(userId: bigint): Promise<boolean> {
 
 async function getTaskById(userId: bigint, taskId: bigint): Promise<Task | string> {
     try{
-        if(!isUserValid(userId))
+        if(!await isUserValid(userId))
             return USER_NOT_FOUND
 
         let task = await DB.tasks.findUnique({
@@ -58,7 +58,7 @@ export = {
 
     getAllTasks: async (userId: bigint): Promise<Tasks | string> => {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             let allTasks = await DB.tasks.findMany({
@@ -79,7 +79,7 @@ export = {
 
     getTasksByTitle: async (userId: bigint, textToSearch: string): Promise<Tasks | string>=> {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             let tasks = await DB.tasks.findMany({
@@ -106,7 +106,7 @@ export = {
 
     getTasksByStatus: async (userId: bigint, isCompleted: boolean): Promise<Tasks | string>=> {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             let tasks = await DB.tasks.findMany({
@@ -130,7 +130,7 @@ export = {
 
     getTasksByPeriod: async (userId: bigint, startAt: string, endAt: string, timezone: string): Promise<Tasks | string>=> {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             const start_at = (DateTime.fromSQL(startAt, { zone: timezone })).toUTC().toISO()
@@ -163,7 +163,7 @@ export = {
 
     createTask: async (userId: bigint, task: Task)=> {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             return await DB.tasks.create({
@@ -191,7 +191,7 @@ export = {
     updateTask: async (userId: bigint, task: Task)=> {
         try{
 
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             let existTask = await getTaskById(userId, task.taskId)
@@ -224,7 +224,7 @@ export = {
 
     setTaskComplete: async (userId: bigint, taskId: bigint, status: boolean) => {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             let task = await getTaskById(userId, taskId)
@@ -253,7 +253,7 @@ export = {
 
     deleteTask: async (userId: bigint, taskId: bigint) => {
         try{
-            if(!isUserValid(userId))
+            if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
             let task = await getTaskById(userId, taskId)

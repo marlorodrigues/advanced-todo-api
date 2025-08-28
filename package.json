@@ -1,7 +1,7 @@
 {
   "name": "todo-ts",
   "version": "0.0.3",
-  "description": "Simple ToDo List API",
+  "description": "Advanced ToDo List API",
   "license": "ISC",
   "author": "Marlo Rodrigues",
   "type": "commonjs",
