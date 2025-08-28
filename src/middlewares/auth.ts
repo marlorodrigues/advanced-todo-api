@@ -20,6 +20,8 @@ export = {
             let accept_language = request.headers['accept-language'] || 'en'
             const cookies = process.env.NODE_ENV == "debug" ? request.cookies : request.signedCookies
 
+            console.log(cookies)
+
             next()
 
         } catch (error: any) {

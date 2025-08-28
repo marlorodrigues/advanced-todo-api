@@ -11,7 +11,7 @@ function denyRequest(reply: Response, message: string, statusCode = 400){
     });
 }
 
-function sendResponse(reply: Response, data: any, dataExpectedType: string){
+function sendResponse(reply: Response, data: any, dataExpectedType = 'object'){
     reply.status(200).send({
         message: data,
         success: typeof data == dataExpectedType,

@@ -11,7 +11,7 @@ function denyRequest(reply: Response, message: string, statusCode = 400){
     });
 }
 
-function sendResponse(reply: Response, data: any, dataExpectedType: string){
+function sendResponse(reply: Response, data: any, dataExpectedType = 'object'){
     reply.status(200).send({
         message: data,
         success: typeof data == dataExpectedType,
@@ -28,13 +28,14 @@ export = {
             const body = request.body
             let validation = Valid.LoginForm(body)
 
-            if(validation.error)
-                return denyRequest(reply, validation.error.message)
+            if(!validation.success)
+                return denyRequest(reply, validation.error)
 
-            const userData = await factory.findUserData(validation.value.username, validation.value.password)
+            const userData = await factory.findUserData(validation.data.username, validation.data.password)
             if(typeof userData == "string")
-                denyRequest(reply, userData, 404)
+                return denyRequest(reply, userData, 404)
 
+            sendResponse(reply, userData)
         } catch (error: any) {
             console.log("-----------------------------")
             console.log(error.message)

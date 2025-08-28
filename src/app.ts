@@ -68,9 +68,14 @@ export default class APIServer {
 
     private async initializeRoutes() {
         // var Middlewares = await import('./middlewares')
-        var AllRoutes = await import('./controllers/index')
-        for (let route of AllRoutes.default()) {
-            console.log(`Registering route: [${route.method}] ${route.url}`)
+        var AllHandlers = await import('./controllers/index')
+        for (let handler of AllHandlers.default()) {
+            if(!handler?.routes) return
+
+            for(let route of handler.routes['PUBLIC']){
+                console.log(route.method.toUpperCase(), `/api${handler.base}/${route.url}`)
+                this.app[route.method](`/api${handler.base}/${route.url}`, route.handler)
+            }
         }
     }
 

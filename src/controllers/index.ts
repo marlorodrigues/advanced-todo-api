@@ -1,29 +1,34 @@
 import fs from 'fs'
 
-interface ExposedRoutes {
+interface Routes {
     method: string
     url: string
     prehandler: Function | undefined,
     handler: Function,
 }
 
-export default function initializeControllers(): ExposedRoutes[] {
+interface Routes2Expose {
+    base: string,
+    routes: Array<Routes>
+}
+
+export default function initializeControllers(): Routes2Expose[] {
     try{
         var directories = fs.readdirSync(__dirname)
-        var allRoutes: ExposedRoutes[] = []
+        var allRoutes: Routes2Expose[] = []
 
         directories.map(async (controller: string) => {
             if (controller.includes('index')) return;
 
             var files = fs.readdirSync(`${__dirname}/${controller}`)
             files.map(async (file: string) => {
-                var isRouteFile = file.includes('.routes.')
+                var isRouteFile = file.includes('routes.')
                 if (!isRouteFile) return;
 
                 let handlers: any = require(`${__dirname}/${controller}/${file}`)
+                allRoutes.push(handlers)
             })
         })
-
 
         return allRoutes
     }
