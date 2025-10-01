@@ -1,26 +1,67 @@
+declare global {
+  namespace Express {
+    interface Request {
+      sessionData?: SessionData
+    }
+  }
+}
+
+interface SessionData {
+    sessionId: string
+    userId: string
+    name: string
+    createdAt: string
+    updatedAt: string
+    deleted: string
+}
+
+
 import { Locals, NextFunction, Request, Response } from 'express'
-import { decryptData } from '../utils/encryption'
+import Redis from './../services/redis';
+import { decodeAccessToken } from '../utils/token';
 
 
-function tasteCookie(cookies: object): any {
-    if(!Object.hasOwn(cookies, process.env.COOKIE_NAME || "_todo"))
-        return false
+async function tasteCookie(cookies: object): Promise<SessionData> {
+    if(!Object.hasOwn(cookies, "_td_at"))
+        return {} as SessionData
 
-    var cookieIngredients = (cookies[process.env.COOKIE_NAME || "_todo"], process.env.COOKIE_SECRET)
+    const cookieFlavor = await Redis.get(cookies["_td_at"])
+    if(!cookieFlavor)
+        return {} as SessionData
 
-    if(!cookieIngredients)
-        return false
+    const cookieData = JSON.parse(cookieFlavor)
+    const accessAuth = cookieData?.access
 
-    return JSON.parse(cookieIngredients)
+    if(!accessAuth)
+        return {} as SessionData
+
+    const session = decodeAccessToken(accessAuth)
+
+    if(session == "MALFORMED_TOKEN")
+        return {} as SessionData
+
+    //@ts-ignore
+    if(session.data.deletedAt)
+        return {} as SessionData
+
+    //@ts-ignore
+    return session.data as SessionData
 }
 
 export = {
     checkAuthorization: async (request: Request, reply: Response, next: NextFunction) => {
         try {
             let accept_language = request.headers['accept-language'] || 'en'
-            const cookies = process.env.NODE_ENV == "debug" ? request.cookies : request.signedCookies
+            const cookies = process.env.NODE_ENV == "dev" ? request.cookies : request.signedCookies
+            const sessionData = await tasteCookie(cookies)
 
-            console.log(cookies)
+            if(Object.keys(sessionData).length == 0)
+                return reply.status(401).send({
+                    message: "Unauthorized to Access",
+                    success: false,
+                });
+
+            request.sessionData = sessionData
 
             next()
 
@@ -31,7 +72,7 @@ export = {
             console.log("-----------------------------")
 
             reply.status(500).send({
-                message: "Unknown Error",
+                message: "Unknown Server Error",
                 success: false,
             });
         }

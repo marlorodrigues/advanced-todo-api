@@ -34,7 +34,7 @@ export function encryptData(data: string, key: Buffer){
 export function decryptData(encryptedData: string, ivStr: string, tagStr: string, key: string){
     const tag = Buffer.from(tagStr, 'hex')
     const iv = Buffer.from(ivStr, 'hex')
-    
+
     const decipher = crypto.createDecipheriv(Algorithm, Buffer.from(key, 'hex'), iv)
     decipher.setAuthTag(tag)
 

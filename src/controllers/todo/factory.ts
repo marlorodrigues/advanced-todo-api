@@ -1,6 +1,6 @@
 import DB from '../../database/postgres'
 import { DateTime } from "luxon";
-import { Task, Tasks } from './types';
+import { Task, TaskIdBigInt, Tasks } from './types';
 
 //#region Erros Map
 const USER_NOT_FOUND = "Was not possibly to find user"
@@ -65,7 +65,17 @@ export = {
                 where: { userId: userId }
             })
 
-            return allTasks.length > 0 ? allTasks as Tasks : TASKS_NOT_FOUND
+            if (allTasks.length > 0)
+                return allTasks.map(task => {
+                    let { taskId, userId, ...rest } = task
+                    return {
+                        taskId: taskId.toString(),
+                        userId: userId.toString(),
+                        ...rest
+                    }
+                }) as Tasks
+            else 
+                return TASKS_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -92,7 +102,8 @@ export = {
                 }
             })
 
-            return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            // return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            return TASK_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -116,7 +127,8 @@ export = {
                 }
             })
 
-            return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            // return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            return TASK_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -128,7 +140,7 @@ export = {
         }
     },
 
-    getTasksByPeriod: async (userId: bigint, startAt: string, endAt: string, timezone: string): Promise<Tasks | string>=> {
+    getTasksByPeriod: async (userId: bigint, startAt: string, endAt: string, timezone: string): Promise<Tasks | string> => {
         try{
             if(!await isUserValid(userId))
                 return USER_NOT_FOUND
@@ -149,7 +161,8 @@ export = {
                 }
             })
 
-            return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            // return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
+            return TASK_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -161,7 +174,7 @@ export = {
         }
     },
 
-    createTask: async (userId: bigint, task: Task)=> {
+    createTask: async (userId: bigint, task: Task): Promise<object | string>  => {
         try{
             if(!await isUserValid(userId))
                 return USER_NOT_FOUND
@@ -194,7 +207,7 @@ export = {
             if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
-            let existTask = await getTaskById(userId, task.taskId)
+            let existTask = await getTaskById(userId, BigInt(task.taskId)) as TaskIdBigInt
             if(typeof existTask == "string")
                 return existTask
 
@@ -206,7 +219,7 @@ export = {
 
             return await DB.tasks.update({
                 where: { taskId: existTask.taskId, userId: userId },
-                data: task,
+                data: existTask,
                 select: {
                     taskId: true
                 }
@@ -227,7 +240,7 @@ export = {
             if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
-            let task = await getTaskById(userId, taskId)
+            let task = await getTaskById(userId, taskId) as TaskIdBigInt
             if(typeof task == "string")
                 return task
 

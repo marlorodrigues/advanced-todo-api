@@ -24,11 +24,11 @@ export = {
             let body = request.body
 
             let validation = Valid.Create(body)
-
             if(validation.error)
                 return denyRequest(reply, validation.error.message)
 
-            let result = factory.createTask(1n, body)
+            let userID = BigInt(request.sessionData?.userId || "-1")
+            let result = factory.createTask(userID, body)
 
             sendResponse(reply, result, 'object')
 
@@ -40,5 +40,47 @@ export = {
 
             denyRequest(reply, "Unknown Error", 500)
         }
-    }
+    },
+
+    getAllTasks: async (request: Request, reply: Response) => {
+        try{
+            let query = request.query
+            let userID = BigInt(request.sessionData?.userId || "-1")
+
+            let result = await factory.getAllTasks(userID)
+
+            sendResponse(reply, result, 'object')
+
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
+
+            denyRequest(reply, "Unknown Error", 500)
+        }
+    },
+
+    updateTask: async (request: Request, reply: Response) => {
+        try {
+            let body = request.body
+
+            let validation = Valid.Update(body)
+            if(validation.error)
+                return denyRequest(reply, validation.error.message)
+
+            let userID = BigInt(request.sessionData?.userId || "-1")
+            let result = factory.updateTask(userID, body)
+
+            sendResponse(reply, result, 'object')
+
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
+
+            denyRequest(reply, "Unknown Error", 500)
+        }
+    },
 }

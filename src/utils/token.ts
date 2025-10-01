@@ -2,13 +2,12 @@ import jwt from "jsonwebtoken";
 
 const HASH = process.env.COOKIE_SECRET || ""
 
-
 export function newRefreshToken(data: any) {
-    return jwt.sign({ data }, HASH, { expiresIn: "30d" })
+    return jwt.sign({ data }, HASH)
 }
 
 export function newAccessToken(data: any) {
-    return jwt.sign({ data }, HASH, { expiresIn: "1d" })
+    return jwt.sign({ data }, HASH)
 }
 
 export function decodeAccessToken(token: string) {

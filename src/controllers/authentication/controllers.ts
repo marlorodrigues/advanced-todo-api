@@ -3,6 +3,8 @@ import { Request, Response } from 'express'
 import factory from "./factory";
 import { encryptData, generateHash } from '../../utils/encryption';
 import { newAccessToken, newRefreshToken } from '../../utils/token';
+import Redis from '../../services/redis';
+
 
 function denyRequest(reply: Response, message: string, statusCode = 400){
     console.log("Request denied by reason:", message)
@@ -20,33 +22,26 @@ function sendResponse(reply: Response, data: any, dataExpectedType = 'object'){
     });
 }
 
-function makeCookie(AccessToken: string, RefreshToken: string){
-    let cookieIngredients = {}
-
+function getCookieIngredients() {
     if(process.env.NODE_ENV != "dev"){
         console.log("Setting Secure Cookie")
-        cookieIngredients = {
+        return {
             domain: process.env.COOKIE_DOMAIN,
             sameSite: "none",
             httpOnly: true,
             signed: true,
             secure: true,
-        }
-    } else {
-        console.log("Setting Regular Cookie")
-        cookieIngredients = {
-            domain: process.env.COOKIE_DOMAIN,
-            httpOnly: true,
+            expires: new Date(Date.now() + 900000) // 15 min
         }
     }
 
-    let key = Buffer.from(process.env.COOKIE_SECRET!, "hex")
-
+    console.log("Setting Regular Cookie")
     return {
-        ingredients: cookieIngredients,
-        access: encryptData(JSON.stringify(AccessToken), key),
-        refresh: encryptData(JSON.stringify(RefreshToken), key),
+        domain: process.env.COOKIE_DOMAIN,
+        httpOnly: true,
+        expires: new Date(Date.now() + 900000) // 15 min
     }
+
 }
 
 export default {
@@ -76,9 +71,14 @@ export default {
                 ...userData,
             })
 
-            let cookies = makeCookie(AccessToken, RefreshToken)
-            reply.cookie('_td_at', cookies.access, cookies.ingredients)
-            reply.cookie('_td_rt', cookies.refresh, cookies.ingredients)
+            let ingredients = getCookieIngredients()
+            //@ts-ignore
+            reply.cookie('_td_at', sessionId, ingredients)
+
+            await Redis.set(sessionId, JSON.stringify({
+                access: AccessToken,
+                refresh: RefreshToken
+            }), 15 * 60 * 60)
 
             sendResponse(reply, userData)
         } catch (error: any) {

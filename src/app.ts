@@ -1,4 +1,3 @@
-import { manual } from './../node_modules/effect/src/Reloadable';
 import express, { Express } from 'express'
 import { json } from 'body-parser'
 import Compression from 'compression'
@@ -7,6 +6,7 @@ import Helmet from "helmet"
 import cookieParser from 'cookie-parser';
 import { encryptData } from './utils/encryption';
 import crypto from 'crypto'
+import AuthMiddleware from './middlewares/auth'
 
 export default class APIServer {
     public app: Express
@@ -75,6 +75,11 @@ export default class APIServer {
             for(let route of handler.routes['PUBLIC']){
                 console.log(route.method.toUpperCase(), `/api${handler.base}/${route.url}`)
                 this.app[route.method](`/api${handler.base}/${route.url}`, route.handler)
+            }
+
+            for(let route of handler.routes['ONLY_VALID_TOKEN']){
+                console.log(route.method.toUpperCase(), `/api${handler.base}/${route.url}`)
+                this.app[route.method](`/api${handler.base}/${route.url}`,  AuthMiddleware.checkAuthorization, route.handler)
             }
         }
     }
