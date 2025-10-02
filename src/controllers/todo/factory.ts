@@ -56,7 +56,7 @@ export = {
 
     getTaskById: getTaskById,
 
-    getAllTasks: async (userId: bigint): Promise<Tasks | string> => {
+    getTasks: async (userId: bigint): Promise<Tasks | string> => {
         try{
             if(!await isUserValid(userId))
                 return USER_NOT_FOUND
@@ -273,7 +273,7 @@ export = {
             if(typeof task == "string")
                 return task
 
-            return await DB.tasks.delete({
+            let result = await DB.tasks.delete({
                 where: {
                     taskId: taskId,
                     userId: userId
@@ -282,6 +282,10 @@ export = {
                     taskId: true
                 }
             })
+
+            return {
+                taskId: result.taskId.toString()
+            }
 
         } catch (error: any) {
             console.log("-----------------------------")

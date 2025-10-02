@@ -16,7 +16,7 @@ interface SessionData {
 }
 
 
-import { Locals, NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import Redis from './../services/redis';
 import { decodeAccessToken } from '../utils/token';
 

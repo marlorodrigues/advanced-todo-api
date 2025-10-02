@@ -43,12 +43,24 @@ export = {
         }
     },
 
-    getAllTasks: async (request: Request, reply: Response) => {
+    getTasks: async (request: Request, reply: Response) => {
         try{
             let query = request.query
             let userID = BigInt(request.sessionData?.userId || "-1")
 
-            let result = await factory.getAllTasks(userID)
+            let result: string | object | Array<object> = "Invalid parameter"
+            if(Object.keys(query).length == 0)
+                result = await factory.getTasks(userID)
+
+            else if(!Object.hasOwn(query, "taskId")) {
+                //@ts-ignore
+                let taskID = BigInt(query?.taskId || "-1")
+                result = await factory.getTaskById(userID, taskID)
+            }
+            else if(!Object.hasOwn(query, "taskId")) {
+                let title = query?.title as string
+                result = await factory.getTasksByTitle(userID, title)
+            }
 
             sendResponse(reply, result, 'object')
 
@@ -71,7 +83,7 @@ export = {
                 return denyRequest(reply, validation.error.message)
 
             let userID = BigInt(request.sessionData?.userId || "-1")
-            let result = factory.updateTask(userID, body)
+            let result = await factory.updateTask(userID, body)
 
             sendResponse(reply, result, 'object')
 
@@ -87,14 +99,15 @@ export = {
 
     deleteTask: async (request: Request, reply: Response) => {
         try {
-            let body = request.body
+            let query = request.query
 
-            let validation = Valid.Update(body)
-            if(validation.error)
-                return denyRequest(reply, validation.error.message)
+            if(!query?.taskId)
+                return denyRequest(reply, "taskId invalid")
 
             let userID = BigInt(request.sessionData?.userId || "-1")
-            let result = factory.deleteTask(userID, body)
+            let taskID = BigInt(query?.taskId as string || "-1")
+
+            let result = await factory.deleteTask(userID, taskID)
 
             sendResponse(reply, result, 'object')
 
