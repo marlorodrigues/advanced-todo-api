@@ -102,8 +102,17 @@ export = {
                 }
             })
 
-            // return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
-            return TASK_NOT_FOUND
+            if (tasks.length > 0)
+                return tasks.map(task => {
+                    let { taskId, userId, ...rest } = task
+                    return {
+                        taskId: taskId.toString(),
+                        userId: userId.toString(),
+                        ...rest
+                    }
+                }) as Tasks
+            else 
+                return TASKS_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -127,8 +136,17 @@ export = {
                 }
             })
 
-            // return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
-            return TASK_NOT_FOUND
+            if (tasks.length > 0)
+                return tasks.map(task => {
+                    let { taskId, userId, ...rest } = task
+                    return {
+                        taskId: taskId.toString(),
+                        userId: userId.toString(),
+                        ...rest
+                    }
+                }) as Tasks
+            else 
+                return TASKS_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -161,8 +179,17 @@ export = {
                 }
             })
 
-            // return tasks.length ? tasks as Tasks : TASK_NOT_FOUND
-            return TASK_NOT_FOUND
+            if (tasks.length > 0)
+                return tasks.map(task => {
+                    let { taskId, userId, ...rest } = task
+                    return {
+                        taskId: taskId.toString(),
+                        userId: userId.toString(),
+                        ...rest
+                    }
+                }) as Tasks
+            else 
+                return TASKS_NOT_FOUND
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -179,7 +206,7 @@ export = {
             if(!await isUserValid(userId))
                 return USER_NOT_FOUND
 
-            return await DB.tasks.create({
+            let result = await DB.tasks.create({
                 data: {
                     title: task.title,
                     description: task.description,
@@ -191,6 +218,10 @@ export = {
                     taskId: true
                 }
             })
+
+            return {
+                taskId: result.taskId.toString()
+            }
         } catch (error: any) {
             console.log("-----------------------------")
             console.log(error.message)
@@ -217,13 +248,17 @@ export = {
             existTask.scheduledAt = task?.scheduledAt || existTask.scheduledAt
             existTask.updatedAt = new Date()
 
-            return await DB.tasks.update({
+            let result = await DB.tasks.update({
                 where: { taskId: existTask.taskId, userId: userId },
                 data: existTask,
                 select: {
                     taskId: true
                 }
             })
+
+            return {
+                taskId: result.taskId.toString()
+            }
 
         } catch (error: any) {
             console.log("-----------------------------")
@@ -246,13 +281,17 @@ export = {
 
             task.isCompleted = status
 
-            return await DB.tasks.update({
+            let result = await DB.tasks.update({
                 where: { taskId: taskId, userId: userId },
                 data: task,
                 select: {
                     taskId: true
                 }
             })
+
+            return {
+                taskId: result.taskId.toString()
+            }
 
         } catch (error: any) {
             console.log("-----------------------------")
