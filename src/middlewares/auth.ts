@@ -76,5 +76,34 @@ export = {
                 success: false,
             });
         }
-    }
+    },
+
+    checkAdminAuthorization: async (request: Request, reply: Response, next: NextFunction) => {
+        try {
+            let accept_language = request.headers['accept-language'] || 'en'
+            const cookies = process.env.NODE_ENV == "dev" ? request.cookies : request.signedCookies
+            const sessionData = await tasteCookie(cookies)
+
+            if(Object.keys(sessionData).length == 0)
+                return reply.status(401).send({
+                    message: "Unauthorized to Access",
+                    success: false,
+                });
+
+            request.sessionData = sessionData
+
+            next()
+
+        } catch (error: any) {
+            console.log("-----------------------------")
+            console.log(error.message)
+            console.log(error.stack)
+            console.log("-----------------------------")
+
+            reply.status(500).send({
+                message: "Unknown Server Error",
+                success: false,
+            });
+        }
+    },
 }

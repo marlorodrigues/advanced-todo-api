@@ -17,22 +17,24 @@ datasource db {
 }
 
 model Users {
-  userId    BigInt    @id @default(autoincrement())
-  name      String    @db.VarChar(128)
-  username     String    @db.VarChar(128) @unique
-  password  String    @db.VarChar(512)
+  userId        BigInt    @id @default(autoincrement())
+  name          String    @db.VarChar(128)
+  username      String    @db.VarChar(128) @unique
+  password      String    @db.VarChar(512)
+  permissionId  Int
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
-  Tasks    Tasks[]
+  Tasks           Tasks[]
+  Permissions     Permissions     @relation(fields: [permissionId], references: [permissionId], onUpdate: NoAction, onDelete: NoAction)
 }
 
 model Tasks {
   taskId        BigInt    @id @default(autoincrement())
   userId        BigInt
-  
+
   title         String    @db.VarChar(256)
   description   String?   @db.Text
   isCompleted   Boolean   @default(false)
@@ -44,4 +46,16 @@ model Tasks {
   deletedAt     DateTime?
 
   Users         Users     @relation(fields: [userId], references: [userId], onUpdate: NoAction, onDelete: NoAction)
+}
+
+model Permissions {
+  permissionId    Int    @id @default(autoincrement())
+  name            String    @db.VarChar(128)
+  type            String    @db.VarChar(128) @unique
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  Users           Users[]
 }

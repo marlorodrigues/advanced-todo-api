@@ -5,7 +5,7 @@ export default {
     base: '/users',
     routes: {
         PUBLIC: [
-            { url: '', method: 'post', handler: Controllers.CreateUser}
+            { url: '', method: 'post', handler: Controllers.CreateUser }
         ],
         ONLY_VALID_TOKEN: [
             { url: '', method: 'get', handler: Controllers.FindAllUser }
