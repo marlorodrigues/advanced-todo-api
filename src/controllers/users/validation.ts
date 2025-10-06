@@ -12,6 +12,7 @@ export default {
             username: z.string().min(6).max(128),
             password: z.string().min(8).max(256),
             name: z.string().min(8).max(256),
+            permissionId: z.number(),
         })
 
         let parsed = schema.safeParse(data)

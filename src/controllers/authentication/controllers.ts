@@ -61,6 +61,10 @@ export default {
             if(typeof userData == "string")
                 return denyRequest(reply, userData, 400)
 
+            const permissionData = await factory.findPermissionData(userData.permissionId)
+            if(typeof permissionData == "string")
+                return denyRequest(reply, permissionData, 400)
+
             const sessionId = generateHash()
             const RefreshToken = newRefreshToken({ 
                 sessionId,  
@@ -68,7 +72,8 @@ export default {
             })
             const AccessToken = newAccessToken({
                 sessionId,
-                ...userData,
+                user: userData,
+                permission: permissionData
             })
 
             let ingredients = getCookieIngredients()
@@ -80,7 +85,10 @@ export default {
                 refresh: RefreshToken
             }), 15 * 60 * 60)
 
-            sendResponse(reply, userData)
+            sendResponse(reply, {
+                user: userData,
+                permission: permissionData
+            })
         } catch (error: any) {
             console.log("-----------------------------")
             console.log(error.message)

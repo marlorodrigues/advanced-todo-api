@@ -104,15 +104,12 @@ export default {
             if(await isUserValid(data.username))
                 return USER_ALREADY_REGISTERED
 
-            let test = encryptPassword(data.password)
-            console.log(test)
-            console.log(test.length)
-
             let user = await DB.users.create({
                 data: {
                     name: data.name,
                     username: data.username,
                     password: encryptPassword(data.password),
+                    permissionId: 1
                 }
             })
 

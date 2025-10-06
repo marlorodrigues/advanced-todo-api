@@ -8,11 +8,22 @@ declare global {
 
 interface SessionData {
     sessionId: string
-    userId: string
-    name: string
-    createdAt: string
-    updatedAt: string
-    deleted: string
+    user: {
+        userId: string
+        permissionId: number
+        name: string
+        createdAt: string
+        updatedAt: string
+        deletedAt: string
+    }
+    permission: {
+        permissionId: number
+        name: string
+        type: string
+        createdAt: string
+        updatedAt: string
+        deletedAt: string
+    }
 }
 
 
@@ -43,6 +54,9 @@ async function tasteCookie(cookies: object): Promise<SessionData> {
     //@ts-ignore
     if(session.data.deletedAt)
         return {} as SessionData
+
+    //@ts-ignore
+    console.log(session.data)
 
     //@ts-ignore
     return session.data as SessionData
